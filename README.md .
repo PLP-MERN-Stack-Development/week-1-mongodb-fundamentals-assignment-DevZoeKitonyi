@@ -1,1 +1,193 @@
 
+# 📚 PLP Bookstore - MongoDB Week 1 Assignment
+
+This repository contains the complete implementation of Week 1 MongoDB assignment for the PLP Bookstore database project.
+
+## 🎯 Project Overview
+
+This project demonstrates fundamental and advanced MongoDB operations including:
+- Database and collection setup
+- CRUD operations (Create, Read, Update, Delete)
+- Advanced querying with filtering, projection, and sorting
+- Aggregation pipelines for data analysis
+- Performance optimization with indexing
+
+## 🗄️ Database Structure
+
+**Database Name:** `plp_bookstore`  
+**Collection Name:** `books`
+
+### Book Document Schema
+Each book document contains the following fields:
+```javascript
+{
+  title: String,           // Book title
+  author: String,          // Author name
+  genre: String,           // Book genre
+  published_year: Number,  // Publication year
+  price: Number,           // Book price in USD
+  in_stock: Boolean,       // Stock availability
+  pages: Number,           // Number of pages
+  publisher: String        // Publisher name
+}
+```
+
+## 📊 Sample Data Overview
+
+The database contains 12 carefully selected books spanning different genres and time periods:
+
+| Title | Author | Genre | Year | Price | In Stock |
+|-------|--------|-------|------|-------|----------|
+| To Kill a Mockingbird | Harper Lee | Fiction | 1960 | $12.99 | ✅ |
+| 1984 | George Orwell | Dystopian | 1949 | $10.99 | ✅ |
+| The Great Gatsby | F. Scott Fitzgerald | Fiction | 1925 | $9.99 | ✅ |
+| Brave New World | Aldous Huxley | Dystopian | 1932 | $11.50 | ❌ |
+| The Hobbit | J.R.R. Tolkien | Fantasy | 1937 | $14.99 | ✅ |
+| The Lord of the Rings | J.R.R. Tolkien | Fantasy | 1954 | $19.99 | ✅ |
+| Pride and Prejudice | Jane Austen | Romance | 1813 | $7.99 | ✅ |
+| Animal Farm | George Orwell | Political Satire | 1945 | $8.50 | ❌ |
+| The Alchemist | Paulo Coelho | Fiction | 1988 | $10.99 | ✅ |
+| Moby Dick | Herman Melville | Adventure | 1851 | $12.50 | ❌ |
+| Wuthering Heights | Emily Brontë | Gothic Fiction | 1847 | $9.99 | ✅ |
+| The Catcher in the Rye | J.D. Salinger | Fiction | 1951 | $8.99 | ✅ |
+
+## 🚀 Setup Instructions
+
+### Prerequisites
+- Node.js (v14 or higher)
+- MongoDB (Community Edition or Atlas account)
+- MongoDB Node.js Driver
+
+### Option 1: Local MongoDB Installation
+
+1. **Install MongoDB Community Edition**
+   ```bash
+   # Ubuntu/Debian
+   sudo apt-get install mongodb
+   
+   # macOS (Homebrew)
+   brew install mongodb-community
+   
+   # Windows: Download from https://www.mongodb.com/try/download/community
+   ```
+
+2. **Install Node.js Dependencies**
+   ```bash
+   npm install mongodb
+   ```
+
+3. **Start MongoDB Service**
+   ```bash
+   # Linux/macOS
+   sudo systemctl start mongod
+   # or
+   brew services start mongodb-community
+   
+   # Windows: Start MongoDB as a service
+   ```
+
+### Option 2: MongoDB Atlas (Cloud)
+
+1. **Create Free Account**
+   - Visit [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
+   - Sign up and create a new M0 (free) cluster
+
+2. **Update Connection String**
+   - In `insert_books.js`, replace the URI:
+   ```javascript
+   const uri = 'mongodb+srv://<username>:<password>@<cluster>.mongodb.net/';
+   ```
+
+3. **Configure Network Access**
+   - Add your IP address to the IP whitelist
+   - Create database user with read/write permissions
+
+## 🔧 Running the Project
+
+### Step 1: Populate the Database
+```bash
+# Run the insert script
+node insert_books.js
+```
+
+Expected output:
+```
+Connected to MongoDB server
+12 books were successfully inserted into the database
+
+Inserted books:
+1. "To Kill a Mockingbird" by Harper Lee (1960)
+2. "1984" by George Orwell (1949)
+3. "The Great Gatsby" by F. Scott Fitzgerald (1925)
+...
+Connection closed
+```
+
+### Step 2: Execute MongoDB Queries
+```bash
+# Open MongoDB Shell
+mongosh
+
+# Load and run all queries
+load('queries.js')
+```
+
+Or execute queries individually in MongoDB Compass or any MongoDB client.
+
+## 📁 File Structure
+
+```
+├── insert_books.js      # Node.js script to populate database
+├── queries.js          # MongoDB Shell queries for all tasks
+├── README.md           # This comprehensive guide
+└── screenshots/        # Directory for MongoDB Compass screenshots
+```
+
+
+## 📈 Key Query Examples
+
+### Basic CRUD Operations
+```javascript
+// Find books by genre
+db.books.find({ genre: "Fiction" })
+
+// Find books published after 1950
+db.books.find({ published_year: { $gt: 1950 } })
+
+// Update book price
+db.books.updateOne(
+  { title: "The Great Gatsby" },
+  { $set: { price: 11.99 } }
+)
+
+// Delete book
+db.books.deleteOne({ title: "Temporary Test Book" })
+```
+
+### Advanced Queries
+```javascript
+// Complex filtering with projection
+db.books.find(
+  { in_stock: true, published_year: { $gt: 1980 } },
+  { title: 1, author: 1, price: 1, _id: 0 }
+)
+
+// Sorting and pagination
+db.books.find({}, { title: 1, price: 1, _id: 0 })
+         .sort({ price: -1 })
+         .skip(5)
+         .limit(5)
+```
+
+### Aggregation Examples
+```javascript
+// Average price by genre
+db.books.aggregate([
+  {
+    $group: {
+      _id: "$genre",
+      avgPrice: { $avg: "$price" },
+      bookCount: { $sum: 1 }
+    }
+  },
+  { $sort
